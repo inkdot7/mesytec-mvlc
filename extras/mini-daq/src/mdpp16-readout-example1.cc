@@ -200,7 +200,7 @@ int main()
 {
     spdlog::set_level(spdlog::level::debug);
 
-    const u32 modBase = 0x02100000;
+    const u32 modBase = 0x21000000;
 
     // trigger setup for IRQ1
     stacks::Trigger trigger{};
@@ -212,7 +212,12 @@ int main()
     const u16 pulserValue = 1;
     std::error_code ec;
 
-    auto mvlc = make_mvlc_usb();
+    auto mvlc = make_mvlc_eth("192.168.1.103");
+
+    spdlog::set_level(spdlog::level::from_str("debug"));
+
+    /* cancel ongoing readout when connecting */
+    mvlc.setDisableTriggersOnConnect(true);
 
     ec = mvlc.connect();
     assert(!ec);
@@ -228,10 +233,14 @@ int main()
     ec = mvlc.vmeWrite(modBase + 0x6070, pulserValue, 0x09, VMEDataWidth::D16); // enable the test pulser
     assert(!ec);
 
+    printf ("Module has been set up!\n");  fflush(stdout);
+
     // Prepare the readout command stack
     StackCommandBuilder readoutCommands;
     readoutCommands.addVMEBlockRead(modBase, 0x08, 65535); // MBLT module readout until BERR
     readoutCommands.addVMEWrite(modBase + 0x6034, 1, 0x09, VMEDataWidth::D16); // readout reset
+
+    printf ("a!\n");  fflush(stdout);
 
     // Upload and setup the stack
     const u8 stackId = 1;
@@ -239,8 +248,11 @@ int main()
     ec = setup_readout_stack(mvlc, readoutCommands, stackId, trigger);
     assert(!ec);
 
+    printf ("b!\n");  fflush(stdout);
+
     // Create a readout_parser
     auto parser = readout_parser::make_readout_parser({ readoutCommands });
+    printf ("c!\n");  fflush(stdout);
     readout_parser::ReadoutParserCounters parserCounters;
     readout_parser::ReadoutParserCallbacks parserCallbacks =
     {
@@ -248,12 +260,16 @@ int main()
         handle_system_event
     };
 
+    printf ("c!\n");  fflush(stdout);
+
     // ConnectionType independent readout helper instance.
     ReadoutHelper rdoHelper(mvlc);
 
     // Enter DAQ mode. This will enable trigger processing.
     ec = enable_daq_mode(mvlc);
     assert(!ec);
+
+    printf ("Readout started!\n");  fflush(stdout);
 
     auto timeToRun = std::chrono::seconds(10);
     auto tStart = std::chrono::steady_clock::now();
