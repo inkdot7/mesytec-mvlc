@@ -327,9 +327,11 @@ void mvlc_eth_throttler(
 
                 if (h->nlmsg_type == NLMSG_ERROR)
                 {
+                    /*
                     auto err = reinterpret_cast<const nlmsgerr *>(NLMSG_DATA(h));
                     logger->warn("mvlc_eth_throttler: NLMSG_ERROR error={} ({})",
                              err->error, strerror(-err->error));
+                    */
                     return {};
                 }
 
