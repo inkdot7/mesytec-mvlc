@@ -98,9 +98,9 @@ endif()
 option(MVLC_BUILD_DOCS "Build the documentation (requires sphinx, breathe and doxygen)"
     ${MESYTEC_MVLC_MASTER_PROJECT})
 
-if (MVLC_BUILD_DOCS)
-    add_subdirectory(doc)
-endif (MVLC_BUILD_DOCS)
+#if (MVLC_BUILD_DOCS)
+#    add_subdirectory(doc)
+#endif (MVLC_BUILD_DOCS)
 
 add_subdirectory(extras)
 add_subdirectory(src)

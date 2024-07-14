@@ -11,7 +11,10 @@ if (NOT SPHINX_EXECUTABLE)
     return()
 endif()
 
-file(REAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../src DOXYGEN_STRIP_FROM_PATH)
+if (NOT file(REAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../src DOXYGEN_STRIP_FROM_PATH))
+    message(STATUS "doxygen does not support REAL_PATH, documentation will not be built")
+    return()
+endif()
 
 configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 configure_file(source/conf.py.in ${CMAKE_CURRENT_BINARY_DIR}/conf.py)
